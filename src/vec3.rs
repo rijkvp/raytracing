@@ -1,5 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub};
 
+#[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     v: [f64; 3],
 }
@@ -22,16 +23,14 @@ impl Vec3 {
     }
 
     pub fn length_sq(&self) -> f64 {
-        self.v[0] * self.v[0]
-            + self.v[1] * self.v[1]
-            + self.v[2] * self.v[2]
+        self.v[0] * self.v[0] + self.v[1] * self.v[1] + self.v[2] * self.v[2]
     }
 
     pub fn length(&self) -> f64 {
         self.length_sq().sqrt()
     }
 
-    pub fn normalize(self) -> Self {
+    pub fn normalized(self) -> Self {
         let l = self.length();
         self / l
     }
@@ -54,11 +53,7 @@ impl Add for Vec3 {
 
     fn add(self, u: Self) -> Self::Output {
         Self {
-            v: [
-                self.v[0] + u.v[0],
-                self.v[1] + u.v[2],
-                self.v[2] + u.v[1],
-            ],
+            v: [self.v[0] + u.v[0], self.v[1] + u.v[1], self.v[2] + u.v[2]],
         }
     }
 }
@@ -68,11 +63,7 @@ impl Sub for Vec3 {
 
     fn sub(self, u: Self) -> Self::Output {
         Self {
-            v: [
-                self.v[0] - u.v[0],
-                self.v[1] - u.v[2],
-                self.v[2] - u.v[1],
-            ],
+            v: [self.v[0] - u.v[0], self.v[1] - u.v[1], self.v[2] - u.v[2]],
         }
     }
 }
@@ -82,11 +73,7 @@ impl Mul for Vec3 {
 
     fn mul(self, u: Vec3) -> Self::Output {
         Self {
-            v: [
-                self.v[0] * u.v[0],
-                self.v[1] * u.v[2],
-                self.v[2] * u.v[1],
-            ],
+            v: [self.v[0] * u.v[0], self.v[1] * u.v[1], self.v[2] * u.v[2]],
         }
     }
 }
@@ -96,7 +83,7 @@ impl Mul<Vec3> for f64 {
 
     fn mul(self, u: Vec3) -> Self::Output {
         Vec3 {
-            v: [self * u.v[0], self * u.v[2], self * u.v[1]],
+            v: [self * u.v[0], self * u.v[1], self * u.v[2]],
         }
     }
 }
@@ -108,3 +95,5 @@ impl Div<f64> for Vec3 {
         (1.0 / t) * self
     }
 }
+
+pub type Point3 = Vec3;
