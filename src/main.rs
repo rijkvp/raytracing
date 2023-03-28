@@ -1,3 +1,8 @@
+mod color;
+mod vec3;
+
+use color::Color;
+
 use std::io::{self, Write};
 use std::time::Instant;
 
@@ -14,8 +19,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for y in (0..IMG_HEIGHT).rev() {
         writeln!(&mut stderr, "Line {}/{}", y, IMG_HEIGHT)?;
-        for x in 0..IMG_WIDTH {
-            writeln!(&mut stdout, "{} {} {}", x, y, 63)?;
+        for x in (0..IMG_WIDTH).rev() {
+            let color = Color::new(
+                x as f64 / IMG_WIDTH as f64,
+                y as f64 / IMG_HEIGHT as f64,
+                0.25,
+            );
+            writeln!(&mut stdout, "{color}")?;
         }
     }
     writeln!(&mut stderr, "Took {:?}", start.elapsed())?;
