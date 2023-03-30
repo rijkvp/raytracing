@@ -22,12 +22,12 @@ impl Vec3 {
         self.v[2]
     }
 
-    pub fn length_sq(&self) -> f64 {
+    pub fn length_squared(&self) -> f64 {
         self.v[0] * self.v[0] + self.v[1] * self.v[1] + self.v[2] * self.v[2]
     }
 
     pub fn length(&self) -> f64 {
-        self.length_sq().sqrt()
+        self.length_squared().sqrt()
     }
 
     pub fn normalized(self) -> Self {

@@ -9,22 +9,28 @@ use vec3::{Point3, Vec3};
 use std::io::{self, Write};
 use std::time::Instant;
 
-fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> bool {
+fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> f64 {
     let oc = ray.origin() - center;
-    let a = ray.direction().dot(ray.direction());
-    let b = 2.0 * oc.dot(ray.direction());
-    let c = oc.dot(oc) - radius * radius;
-    let d = b * b - 4.0 * a * c;
-    d > 0.0
+    let a = ray.direction().length_squared();
+    let half_b = oc.dot(ray.direction());
+    let c = oc.length_squared() - radius * radius;
+    let discrim = half_b * half_b - a * c;
+    if discrim < 0.0 {
+        -1.0
+    } else {
+        (-half_b - discrim.sqrt()) / a
+    }
 }
 
 fn ray_color(ray: Ray) -> Color {
-    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.2, 0.2);
+    let mut t = hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray);
+    if t > 0.0 {
+        let n = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalized();
+        return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
     }
     let unit_dir = ray.direction().normalized();
-    let t = 0.5 * (unit_dir.y() + 1.0);
-    return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
+    t = 0.5 * (unit_dir.y() + 1.0);
+    return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.3, 0.5, 0.8);
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -49,7 +55,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write!(&mut stdout, "P3\n{} {}\n255\n", image_width, image_height)?;
 
     for y in (0..image_height).rev() {
-        writeln!(&mut stderr, "Line {}/{}", y, image_height)?;
+        write!(
+            &mut stderr,
+            "\rGenerating image {:.2}%..",
+            (image_height - y) as f64 / image_height as f64 * 100.0
+        )?;
+        stderr.flush()?;
         for x in 0..image_width {
             let x_offset = x as f64 / image_width as f64;
             let y_offset = y as f64 / image_height as f64;
@@ -61,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             writeln!(&mut stdout, "{pixel_color}")?;
         }
     }
-    writeln!(&mut stderr, "Generated image in {:?}", start.elapsed())?;
+    writeln!(&mut stderr, "\nGenerated image in {:.2?}", start.elapsed())?;
 
     Ok(())
 }
